@@ -1,0 +1,201 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Countdown Timer</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        h1 {
+            color: #333;
+        }
+        .container {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        #timer {
+            font-size: 3em;
+            color: #ff0000;
+            margin: 20px;
+            display: none; /* Initially hidden */
+        }
+        #passwordSection {
+            display: none;
+            margin-top: 20px;
+        }
+        #message {
+            margin-top: 10px;
+            color: #333;
+        }
+        #welcomeMessage {
+            font-size: 1.5em;
+            margin-bottom: 20px;
+            color: #333;
+        }
+        .input-group {
+            margin: 10px 0;
+        }
+        .input-group label {
+            margin-right: 10px;
+        }
+        .input-group input {
+            padding: 5px;
+            font-size: 1em;
+            max-width: 100%;
+        }
+        .button {
+            padding: 10px 20px;
+            font-size: 1em;
+            background-color: #007bff;
+            color: #fff;
+            border: none;
+            cursor: pointer;
+            margin-top: 10px;
+        }
+        .button:hover {
+            background-color: #0056b3;
+        }
+        .hidden {
+            display: none;
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/crypto-js@4.1.1/crypto-js.min.js"></script>
+    <script>
+        var timer;
+        var countdownTime = 3600; // 60 minutes in seconds
+
+        // Base64 encoded passwords
+        const encodedOKPWPassword = "Zm9yZXZlcg=="; // "OKPW"
+        const encodedREPWPassword = "cmVzZXR0aW1lcg=="; // "REPW"
+
+        function startTimer() {
+            clearInterval(timer);
+            const now = new Date().getTime();
+            const endTime = now + countdownTime * 1000;
+            localStorage.setItem('endTime', endTime);
+
+            timer = setInterval(function () {
+                const remainingTime = Math.floor((endTime - new Date().getTime()) / 1000);
+                if (remainingTime <= 0) {
+                    clearInterval(timer);
+                    localStorage.removeItem('endTime');
+                    document.getElementById("message").innerHTML = "Sorry, you didn't solve the Escaperoom in time";
+                    countdownTime = 0;
+                } else {
+                    countdownTime = remainingTime;
+                }
+                updateTimerDisplay();
+            }, 1000);
+        }
+
+        function REPW() {
+            clearInterval(timer);
+            countdownTime = 3600;
+            startTimer();
+        }
+
+        function reduceTime(minutes) {
+            clearInterval(timer);
+            countdownTime -= (minutes * 60);
+            if (countdownTime < 0) {
+                countdownTime = 0;
+            }
+            const endTime = new Date().getTime() + countdownTime * 1000;
+            localStorage.setItem('endTime', endTime);
+            startTimer();
+        }
+
+        function updateTimerDisplay() {
+            var minutes = Math.floor(countdownTime / 60);
+            var seconds = countdownTime % 60;
+            document.getElementById("timer").innerHTML = minutes + "m " + (seconds < 10 ? '0' + seconds : seconds) + "s ";
+        }
+
+        function decodeBase64(encoded) {
+            return atob(encoded);
+        }
+
+        function checkPassword() {
+            var password = document.getElementById("password").value;
+
+            if (password === decodeBase64(encodedOKPWPassword)) {
+                document.body.innerHTML = '<div class="container"><a href="cadeau.docx" download="cadeau.docx"><img src="uil.jpg" alt="Congratulations" style="width:100%;max-width:600px;height:auto;"></a></div>';
+                localStorage.removeItem('endTime');
+            } else if (password === decodeBase64(encodedREPWPassword)) {
+                REPW();
+                document.getElementById("message").innerHTML = "";
+            } else {
+                document.getElementById("message").innerHTML = "Wrong password, this costs you 2 minutes";
+                reduceTime(2);
+            }
+        }
+
+        window.onload = function () {
+            const endTime = localStorage.getItem('endTime');
+            if (endTime) {
+                const remainingTime = Math.floor((endTime - new Date().getTime()) / 1000);
+                if (remainingTime > 0) {
+                    countdownTime = remainingTime;
+                    startTimer();
+                    document.getElementById("passwordSection").style.display = "block";
+                    document.getElementById("timer").style.display = "block";
+                } else {
+                    localStorage.removeItem('endTime');
+                }
+            }
+
+            document.getElementById("startButton").onclick = function() {
+                var firstname = document.getElementById("firstname").value;
+                if (firstname.trim() !== "") {
+                    if (firstname.toLowerCase() === "astrid" || firstname.toLowerCase() === "bjorn") {
+                        document.getElementById("welcomeMessage").innerHTML = "Hello " + firstname + ", welcome to the mysterious >Astrid en Bjorn< Escaperoom website";
+                        document.getElementById("passwordSection").style.display = "block";
+                        document.getElementById("timer").style.display = "block";
+                        document.getElementById("notForYouMessage").innerHTML = ""; // Clear the not for you message
+                        startTimer();
+                    } else {
+                        document.getElementById("welcomeMessage").innerHTML = "";
+                        document.getElementById("notForYouMessage").innerHTML = "This page is not for you";
+                        document.getElementById("passwordSection").style.display = "none";
+                        document.getElementById("timer").style.display = "none";
+                    }
+                } else {
+                    alert("Please enter your first name.");
+                }
+            };
+        };
+    </script>
+</head>
+<body>
+    <div class="container">
+        <h1>Welcome</h1>
+        <div class="input-group">
+            <label for="firstname">Enter your first name:</label>
+            <input type="text" id="firstname" name="firstname">
+            <button class="button" id="startButton">Start</button>
+        </div>
+
+        <div id="passwordSection">
+            <div id="welcomeMessage"></div>
+            <div id="timer">60m 00s</div>
+            <div class="input-group">
+                <label for="password">Enter password:</label>
+                <input type="text" id="password" name="password">
+            </div>
+            <button class="button" onclick="checkPassword()">Submit</button>
+            <div id="message"></div>
+        </div>
+        <div id="notForYouMessage" style="margin-top: 20px; color: red;"></div>
+    </div>
+</body>
+</html>
