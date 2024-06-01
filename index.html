@@ -75,7 +75,7 @@
         var countdownTime = 3600; // 60 minutes in seconds
 
         // Base64 encoded passwords
-        const encodedOKPWPassword = "Zm9yZXZlcg=="; // "OKPW"
+        const encodedOKPWPassword = "Zm9yZXZlcnlvdXJz"; // "OKPW"
         const encodedREPWPassword = "cmVzZXR0aW1lcg=="; // "REPW"
 
         function startTimer() {
@@ -129,7 +129,7 @@
             var password = document.getElementById("password").value;
 
             if (password === decodeBase64(encodedOKPWPassword)) {
-                document.body.innerHTML = '<div class="container"><a href="cadeau.docx" download="cadeau.docx"><img src="uil.jpg" alt="Congratulations" style="width:100%;max-width:600px;height:auto;"></a></div>';
+                document.body.innerHTML = '<div class="container"><a href="Cadeau.docx" download="Cadeau.docx"><img src="uil.jpg" alt="Congratulations" style="width:100%;max-width:600px;height:auto;"></a></div>';
                 localStorage.removeItem('endTime');
             } else if (password === decodeBase64(encodedREPWPassword)) {
                 REPW();
